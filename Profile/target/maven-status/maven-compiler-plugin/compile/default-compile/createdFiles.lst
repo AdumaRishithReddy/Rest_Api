@@ -1,0 +1,6 @@
+org\rishi\profiling\Profile\UserResources.class
+org\rishi\profiling\Profile\Operations.class
+org\rishi\profiling\Profile\MyResource.class
+org\rishi\profiling\Profile\Connector.class
+org\rishi\profiling\Profile\MetadataReader.class
+org\rishi\profiling\Profile\Validator.class
