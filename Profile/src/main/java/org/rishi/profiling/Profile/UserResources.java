@@ -7,12 +7,14 @@ import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.net.URISyntaxException;
 import java.net.http.HttpHeaders;
+import java.net.http.HttpRequest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.Map;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -145,10 +148,15 @@ public class UserResources {
 	@Path("/{messageid}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getprofile(@PathParam("messageid") long messageid,JSONObject obj) throws SQLException, JSONException {
-//		BasicAuth auth= new BasicAuth();
-//		System.out.print(httpHeaders);
-//		auth.filter(httpHeaders);
+	public Response getprofile(@HeaderParam("Authorization") String head,@HeaderParam("username") String user,@PathParam("messageid") long messageid,JSONObject obj) throws SQLException, JSONException, ClassNotFoundException {
+		BasicAuth auth= new BasicAuth();
+		System.out.println(head);
+		boolean t1=auth.ValidateToken(head,user);
+		if(!t1) {
+	        	return Response.status(Response.Status.FORBIDDEN).entity("Session is timed out").build();        
+	        
+		}
+		else {
 		Map <String,Object>s20= new HashMap<String, Object>();
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
@@ -181,7 +189,7 @@ public class UserResources {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Certain classes are not found").build();
-		}
+		}}
 	}
 //	@RolesAllowed("ADMIN")
 	@DELETE
@@ -252,5 +260,17 @@ public class UserResources {
 			return Response.status(Status.BAD_REQUEST).entity("Invalid Object found in the request please refer to the documentation").build();
 		}
 	}
-	
+	@GET
+	@Path("/login")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response login(@HeaderParam("Authorization") String head) throws SQLException, JSONException {
+		System.out.println(head);
+		String Auth=head.substring(6,head.length());
+		BasicAuth autho=new BasicAuth();
+		System.out.println("logging");
+		Response res=autho.filter(Auth);
+		
+		return res;
+	}
 }
